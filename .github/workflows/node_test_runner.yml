@@ -1,0 +1,30 @@
+name: Test Runner
+
+on: [pull_request, push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install, run ganache and tests
+      run: |
+        cd airdropper-contracts
+        npm install -g truffle
+        npm install -g ganache-cli@istanbul
+        npm install
+        ganache-cli -p 7545 > /dev/null &
+        sleep 5
+        npm run test
+      env:
+        CI: true

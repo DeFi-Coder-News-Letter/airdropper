@@ -1,0 +1,5 @@
+type AirdropUser @entity {
+  id: ID!
+  credits: BigInt!
+  _address: Bytes! # address
+}

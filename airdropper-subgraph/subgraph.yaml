@@ -1,0 +1,30 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Contract
+    network: mainnet
+    source:
+      address: "0x01104B29EB67ABbF99a7Ae891DF43b7978A7100e"
+      abi: Contract
+      startBlock: 9410113
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - CreditsAdded
+        - CreditsRemoved
+        - Transfer
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: CreditsAdded(indexed address,indexed address,uint256)
+          handler: handleCreditsAdded
+        - event: CreditsRemoved(indexed address,indexed address,uint256)
+          handler: handleCreditsRemoved
+        - event: Transfer(indexed address,indexed address,uint256,uint256)
+          handler: handleTransfer
+      file: ./src/mapping.ts
