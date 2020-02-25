@@ -1,146 +1,144 @@
 <template>
     <div>
-        <template v-if="wizard.currentStep === 1">
-            <section class="main_wrapp">
-                <div class="container">
-                    <fieldset>
-                        <div class="main_form">
-                            <div class="token_address">
-                                <div class="form-group">
-                                    <label for="address">{{ 'token_address' | lang}}</label>
-                                    <v-select id="address" label="tokenName" :options="tokensInAccount" @input="setSelected" :filter-by="filterBy">
-                                        <template v-slot:option="option">
-                                            ({{ option.tokenSymbol }}) {{ option.tokenName }} - {{ option.contractAddress }}
-                                        </template>
-                                    </v-select>
+        <section v-show="wizard.currentStep === 1" class="main_wrapp">
+            <div class="container">
+                <fieldset>
+                    <div class="main_form">
+                        <div class="token_address">
+                            <div class="form-group">
+                                <label for="address">{{ 'token_address' | lang}}</label>
+                                <v-select id="address" label="tokenName" :options="tokensInAccount" @input="setSelected" :filter-by="filterBy">
+                                    <template v-slot:option="option">
+                                        ({{ option.tokenSymbol }}) {{ option.tokenName }} - {{ option.contractAddress }}
+                                    </template>
+                                </v-select>
+                            </div>
+                        </div>
+                        <div class="decimal">
+                            <div class="form-group">
+                                <label for="address">{{ 'decimals' | lang }}</label>
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="address_csv">
+                            <div class="form-group">
+                                <label>{{ 'csv_data' | lang }}</label>
+                                <b-form-textarea
+                                    id="csv-group-data"
+                                    v-model="form.csvData"
+                                    placeholder="0x3f8C962eb167aD2f80C72b5F933511CcDF0719D4,123"
+                                    rows="15"
+                                    max-rows="250"/>
+                            </div>
+                            <div class="upload_file">
+                                <input @change="form.file = $event.target.files[0]" type="file" name="file-2[]" id="file-2" class="inputfile inputfile-2 btn-danger">
+                                <label for="file-2"><i class="fa fa-paperclip"></i><span>{{ 'upload_csv' | lang }}</span></label>
+                            </div>
+                            <div class="my-2 text-danger" v-if="invalidRows.length">
+                                <div>The following rows will not be part of the airdrop as they are invalid:</div>
+                                <table class="table-striped my-3">
+                                    <thead>
+                                    <tr>
+                                        <th class="p-2">Address</th>
+                                        <th class="p-2">Amount Due ({{ symbol }})</th>
+                                        <th class="p-2">Offending Line</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="(row,idx) in invalidRows" :key="idx">
+                                        <td class="p-2">{{row[0]}}</td>
+                                        <td class="p-2">{{row[1]}}</td>
+                                        <td class="p-2">{{row[2]}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div>
+                                    If you are still happy to proceed, then please click 'Next' or go back and fix the errors.
                                 </div>
                             </div>
-                            <div class="decimal">
-                                <div class="form-group">
-                                    <label for="address">{{ 'decimals' | lang }}</label>
-                                    <input type="text" class="form-control">
-                                </div>
+                        </div>
+                        <div class="airdrop_main">
+                            <div class="airdropper mr-2">
+                                <input type="radio" id="test1" name="radio-group" checked>
+                                <label for="test1">{{ 'push' | lang }}</label>
+                                <p>{{ 'the_most_commonly' | lang }}</p>
+                            </div>
+                            <div class="airdropper disabled ml-2">
+                                <span class="badge badge-info">{{ 'coming_soon' | lang }}</span>
+                                <input type="radio" id="test2" name="radio-group" disabled>
+                                <label for="test2">{{ 'pull' | lang }}</label>
+                                <p>{{ 'airdrop_recipients' | lang }}</p>
                             </div>
                             <div class="clearfix"></div>
-                            <div class="address_csv">
-                                <div class="form-group">
-                                    <label>{{ 'csv_data' | lang }}</label>
-                                    <b-form-textarea
-                                        id="csv-group-data"
-                                        v-model="form.csvData"
-                                        placeholder="0x3f8C962eb167aD2f80C72b5F933511CcDF0719D4,123"
-                                        rows="15"
-                                        max-rows="250"/>
-                                </div>
-                                <div class="upload_file">
-                                    <input @change="form.file = $event.target.files[0]" type="file" name="file-2[]" id="file-2" class="inputfile inputfile-2 btn-danger">
-                                    <label for="file-2"><i class="fa fa-paperclip"></i><span>{{ 'upload_csv' | lang }}</span></label>
-                                </div>
-                                <div class="my-2 text-danger" v-if="invalidRows.length">
-                                    <div>The following rows will not be part of the airdrop as they are invalid:</div>
-                                    <table class="table-striped my-3">
-                                        <thead>
-                                        <tr>
-                                            <th class="p-2">Address</th>
-                                            <th class="p-2">Amount Due ({{ symbol }})</th>
-                                            <th class="p-2">Offending Line</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr v-for="(row,idx) in invalidRows" :key="idx">
-                                            <td class="p-2">{{row[0]}}</td>
-                                            <td class="p-2">{{row[1]}}</td>
-                                            <td class="p-2">{{row[2]}}</td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                    <div>
-                                        If you are still happy to proceed, then please click 'Next' or go back and fix the errors.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="airdrop_main">
-                                <div class="airdropper mr-2">
-                                    <input type="radio" id="test1" name="radio-group" checked>
-                                    <label for="test1">{{ 'push' | lang }}</label>
-                                    <p>{{ 'the_most_commonly' | lang }}</p>
-                                </div>
-                                <div class="airdropper disabled ml-2">
-                                    <span class="badge badge-info">{{ 'coming_soon' | lang }}</span>
-                                    <input type="radio" id="test2" name="radio-group" disabled>
-                                    <label for="test2">{{ 'pull' | lang }}</label>
-                                    <p>{{ 'airdrop_recipients' | lang }}</p>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                            <button :disabled="!valid" @click="nextStep(1)" class="btn btn-danger">{{ 'send' | lang }}</button>
                         </div>
-                    </fieldset>
-                </div>
-            </section>
-            <Faq/>
-        </template>
-        <section class="main_wrapp approve_main" v-if="wizard.currentStep === 2">
+                        <button :disabled="!valid" @click="nextStep(1)" class="btn btn-danger">{{ 'send' | lang }}</button>
+                    </div>
+                </fieldset>
+            </div>
+        </section>
+        <Faq v-show="wizard.currentStep === 1"/>
+        <section class="main_wrapp approve_main" v-show="wizard.currentStep === 2">
             <div class="container">
                 <fieldset>
                     <div class="approve">
                         <article class="row">
                             <aside class="col-md-3">
                                 <div class="approve_inner">
-                                    <h4>0.0000</h4>
+                                    <h4>{{totalValue}} {{ symbol }}</h4>
                                     <p>{{ 'your_current_multisender' | lang }}</p>
                                 </div>
                             </aside>
                             <aside class="col-md-3">
                                 <div class="approve_inner">
-                                    <h4>27.5000</h4>
+                                    <h4>{{airdropData.tokenCount}}</h4>
                                     <p>{{ 'total_number_of_tokens' | lang }}</p>
                                 </div>
                             </aside>
                             <aside class="col-md-3">
                                 <div class="approve_inner">
-                                    <h4>0.0000</h4>
+                                    <h4>{{airdropData.balance}}</h4>
                                     <p>{{ 'your_token_balance' | lang }}</p>
                                 </div>
                             </aside>
                             <aside class="col-md-3">
                                 <div class="approve_inner">
-                                    <h4>0.0000</h4>
+                                    <h4>{{airdropData.txCount}}</h4>
                                     <p>{{ 'your_xdai_balance' | lang }}</p>
                                 </div>
                             </aside>
                         </article>
                     </div>
-                    <button @click="nextStep(2)" class="btn btn-danger">{{ 'next' | lang }}</button>
+                    <button @click="approveAllowance" :disabled="approving" class="btn btn-danger">{{ 'next' | lang }}</button>
                 </fieldset>
             </div>
         </section>
-        <section class="main_wrapp multisend" v-if="wizard.currentStep === 3">
+        <section class="main_wrapp multisend" v-show="wizard.currentStep === 3">
             <div class="container">
                 <fieldset>
                     <div class="approve">
                         <article class="row">
                             <aside class="col-md-3">
                                 <div class="approve_inner">
-                                    <h4>524</h4>
+                                    <h4>{{airdropData.addressCount}}</h4>
                                     <p>{{ 'total_number_of_addresses' | lang }}</p>
                                 </div>
                             </aside>
                             <aside class="col-md-3">
                                 <div class="approve_inner">
-                                    <h4>11058.000000</h4>
+                                    <h4>{{airdropData.tokenCount}} {{symbol}}</h4>
                                     <p>{{ 'total_number_of_tokens' | lang }}</p>
                                 </div>
                             </aside>
                             <aside class="col-md-3">
                                 <div class="approve_inner">
-                                    <h4>15270.0000</h4>
+                                    <h4>{{airdropData.balance}} {{symbol}}</h4>
                                     <p>{{ 'your_token_balance' | lang }}</p>
                                 </div>
                             </aside>
                             <aside class="col-md-3">
                                 <div class="approve_inner">
-                                    <h4>3</h4>
+                                    <h4>{{airdropData.txCount}}</h4>
                                     <p>{{ 'total_number_of_transactions' | lang }}</p>
                                 </div>
                             </aside>
@@ -158,14 +156,16 @@
                             </aside>
                             <aside class="col-md-6">
                                 <div class="approve_inner">
-                                    <output></output><span>Gwei</span>
-                                    <div class="range"><input type="range" step="1" min="1.5" max="100" value="0"></div>
+                                    <output>{{range}}</output>
+                                    <span>Gwei</span>
+                                    <div class="range">
+                                        <input v-model="range" type="range" step="1" min="1.5" max="10" value="0"></div>
                                     <p>{{ 'select_network_speed' | lang }}</p>
                                 </div>
                             </aside>
                         </article>
                     </div>
-                    <button @click="" class="btn btn-danger">{{ 'proceed' | lang }}</button>
+                    <button @click="startOver" v-if="airdropComplete"> class="btn btn-danger">{{ 'proceed' | lang }}</button>
                 </fieldset>
             </div>
         </section>
@@ -180,6 +180,8 @@ import ERC20Airdropper from '../truffleconf/ERC20Airdropper'
 import { ethers } from 'ethers'
 import erc20Abi from '../abi/erc20.abi'
 import _ from 'lodash'
+import 'rangeslider.js'
+import $ from 'jquery'
 
 export default {
     name: "Index",
@@ -330,6 +332,7 @@ export default {
             confirmedAirdropTxs: [],
             airdropping: false,
             airdropComplete: false,
+            range: 1.5,
             form: {
                 token: null,
                 file: null,
@@ -599,6 +602,15 @@ export default {
                 await this.checkAllowance()
             }
         }
+        const self = this
+        $('input[type="range"]').rangeslider({
+            polyfill: false,
+            onInit: function () {
+                self.range = this.value
+            }
+        }).on('input', function () {
+            self.range = this.value
+        })
     },
     watch: {
         'form.file': function (newVal, oldVal) {
